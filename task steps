@@ -1,0 +1,52 @@
+task steps-
+
+📖 📦 Part 1: Prerequisites Setup
+
+1.🔹 Step 1️⃣: Create Azure DevOps Organization and Project
+create new Project name: finance-container-deploy
+Visibility: Private
+
+2.Step 2️⃣: Create Azure Container Registry (ACR)
+Subscription: your subscription
+Resource Group: aci-dev-resources (create new if needed)
+Registry Name: financeregistry (unique name)
+
+3. Step 3️⃣: Create Azure Active Directory Service Principal
+In Azure Portal → search for Azure Active Directory
+Click App registrations,New registration
+Name: devops-service-principal
+Click Register
+Go to Certificates & secrets
+Click + New client secret
+Add description: devops secret, expiry 6 months
+
+4. Step 4️⃣: Assign Role to Service Principal
+choose Subscription
+Go to Access control (IAM) on left
+Click + Add → Add role assignment
+Role: Contributor
+Assign access to: User, group, or service principal
+Select your service principal name (devops-service-principal)
+or
+az role assignment create --<app id> --role Contributor --scope /subscriptions/<subscription id>
+
+📖 ⚙️ Part 2: DevOps CI/CD Setup
+Step 5️⃣: Create Service Connection in Azure DevOps
+Go to Azure DevOps → Project Settings (bottom left corner)
+Click Service connections
+Click + New service connection,Azure Resource Manager
+Select Service principal (manual)
+
+Fill in:
+Subscription ID: From Azure Portal → Subscriptions → Overview
+Subscription name
+Service principal ID: Application (client) ID
+Service principal key: the client secret value
+Tenant ID: Directory (tenant) ID
+
+Add Federated Identity Credential (FIC) for Workload Identity Federation
+
+
+
+Step 6️⃣: Push Your Code to Azure DevOps Repo
+go to repos,
