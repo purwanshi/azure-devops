@@ -23,7 +23,7 @@ stages:
 
     - task: Docker@2
       inputs:
-        containerRegistry: 'dev-identity'
+        containerRegistry: 'acr-service-connection'
         repository: 'springbootapp'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
