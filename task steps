@@ -45,8 +45,77 @@ Service principal key: the client secret value
 Tenant ID: Directory (tenant) ID
 
 Add Federated Identity Credential (FIC) for Workload Identity Federation
+o to Azure Portal → Azure Active Directory → App registrations
+Click on your dev-service-principal
+configure name,issuer,subject  identifier
+add
 
-
+Recreate the Azure DevOps Service Connection for docker orit can pose  problem in ci pipeline 
 
 Step 6️⃣: Push Your Code to Azure DevOps Repo
-go to repos,
+go to repos, push your codeand create a dockerfile
+
+Step 7️⃣: Create CI Pipeline
+Add Tasks:
+
+Task 1: Maven
+Display name: Build Java App
+POM file: pom.xml
+Goals: package
+
+Task 2: Docker
+Display name: Build and Push Docker Image
+Container Registry Type: Azure Container Registry
+Azure subscription: select your service connection
+Azure Container Registry: financeregistry
+Command: Build and push an image
+Dockerfile: path to Dockerfile
+Image name: springbootapp:$(Build.BuildId)
+
+📖 🚀 Part 4: Continuous Deployment (Release Pipeline)
+
+ Step 8️⃣: Create Release Pipeline
+Go to Azure DevOps → Releases
+Click + New Pipeline
+Start with an Empty job
+Click Add an artifact
+
+Source type: Build
+Source: your CI pipeline
+Default version: Latest
+Click Add
+Create a Stage
+Name: Deploy to ACI
+Click Tasks
+Add Task: Azure CLI
+Display name: Deploy ACI
+Azure subscription: your service connection
+Script type: Inline
+
+Inline Script:
+az container create --resource-group aci-dev-resources \
+--name springbootaci \
+--image financeregistry.azurecr.io/springbootapp:$(Build.BuildId) \
+--registry-login-server financeregistry.azurecr.io \
+--registry-username <acr-username> \
+--registry-password <acr-password> \
+--dns-name-label springbootaci-demo --ports 8080
+
+ Step 9️⃣: Enable Continuous Deployment Trigger
+On Artifact → click lightning bolt icon ⚡
+Enable Continuous deployment trigger
+
+📖 🧪 Part 5: Post-Deployment Testing
+curl http://springbootaci-demo.eastus.azurecontainer.io:8080/actuator/health
+HTTP-200  OK
+
+📊 Part 6: Monitor ACI Instance
+Azure Portal → Container Instances → select your instance
+
+Go to:
+Metrics
+Logs
+Properties
+
+
+
