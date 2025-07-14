@@ -1,0 +1,35 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  imageName: 'springbootapp'
+
+stages:
+- stage: BuildAndPush
+  jobs:
+  - job: MavenBuild
+    displayName: 'Build with Maven'
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        goals: 'package'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
+  - job: DockerBuildPush
+    displayName: 'Docker Build and Push'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'acr-service-connection'
+        repository: 'springbootapp'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(Build.BuildId)
