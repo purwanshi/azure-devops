@@ -1,10 +1,10 @@
 trigger:
   branches:
     include:
-      - main  # or your branch name
+      - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+   Image: 'Azure Pipelines'
 
 variables:
   imageName: 'springbootapp'
@@ -12,7 +12,8 @@ variables:
 stages:
 - stage: BuildAndPush
   jobs:
-  - job: Build
+  - job: MavenBuild
+    displayName: 'Build with Maven'
     steps:
     - task: Maven@3
       inputs:
@@ -21,6 +22,9 @@ stages:
         publishJUnitResults: true
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
 
+  - job: DockerBuildPush
+    displayName: 'Docker Build and Push'
+    steps:
     - task: Docker@2
       inputs:
         containerRegistry: 'acr-service-connection'
